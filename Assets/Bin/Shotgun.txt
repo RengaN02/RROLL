@@ -1,0 +1,44 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "Shotgun", menuName = "Shotgun", order = 1)]
+public class Shotgun : Gun
+{
+
+    public override void Attack(bool lookinAtSomething, RaycastHit lookinAt)
+    {
+        Debug.Log("SALDIRR");
+        Transform transform = player.transform;
+
+        // AttackVFX
+
+        Collider[] hitEnemies = Physics.OverlapSphere(playerAttackPoint.position, distance, GameManager.instance.enemyLayers);
+
+        if (hitEnemies.Length == 0)
+        {
+            return;
+        }
+
+        foreach(Collider enemy in hitEnemies)
+        {
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            
+            Vector3 dirToEnemy = (enemy.transform.position - transform.position);
+            dirToEnemy.y = 0;
+            
+            float angle = Vector3.Angle(transform.forward, dirToEnemy);
+
+            if (angle < 90f || distance < 1.2f) 
+            {
+                Health health = enemy.GetComponent<Health>();
+                if (health != null)
+                {
+                    health.TakeDamage(damage);
+                    AfterHit?.Invoke();
+                }
+            }
+            
+        }
+    }
+}
